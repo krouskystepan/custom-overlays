@@ -1,13 +1,13 @@
 {
   "createTimerCommand": {
     "type": "text",
-    "label": "Vytvořit nový timer",
+    "label": "Vytvoří nový timer",
     "value": "!ccptimer",
     "group": "Příkazy"
   },
   "pauseTimerCommand": {
     "type": "text",
-    "label": "Zastavit jeden timer",
+    "label": "Zastaví jeden timer",
     "value": "!pcptimer",
     "group": "Příkazy"
   },
@@ -19,7 +19,7 @@
   },
   "pauseAllTimersCommand": {
     "type": "text",
-    "label": "Zastavit všechny timery",
+    "label": "Zastaví všechny timery",
     "value": "!pcptimers",
     "group": "Příkazy"
   },

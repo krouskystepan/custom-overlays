@@ -1,0 +1,216 @@
+{
+  "createTimerCommand": {
+    "type": "text",
+    "label": "Create a new timer",
+    "value": "!ccptimer",
+    "group": "Commands"
+  },
+  "pauseTimerCommand": {
+    "type": "text",
+    "label": "Pause one timer",
+    "value": "!pcptimer",
+    "group": "Commands"
+  },
+  "unpauseTimerCommand": {
+    "type": "text",
+    "label": "Resume one timer",
+    "value": "!upcptimer",
+    "group": "Commands"
+  },
+  "pauseAllTimersCommand": {
+    "type": "text",
+    "label": "Pause all timers",
+    "value": "!pcptimers",
+    "group": "Commands"
+  },
+  "unpauseAllTimersCommand": {
+    "type": "text",
+    "label": "Resume all timers",
+    "value": "!upcptimers",
+    "group": "Commands"
+  },
+  "adjustTimerCommand": {
+    "type": "text",
+    "label": "Adjust timer time",
+    "value": "!acptimer",
+    "group": "Commands"
+  },
+  "deleteTimerCommand": {
+    "type": "text",
+    "label": "Hide one timer and reset it",
+    "value": "!dcptimer",
+    "group": "Commands"
+  },
+  "deleteAllTimersCommand": {
+    "type": "text",
+    "label": "Hide all timers and reset them",
+    "value": "!dcptimers",
+    "group": "Commands"
+  },
+  "privileges": {
+    "type": "dropdown",
+    "label": "Who can use the commands",
+    "value": "Mods",
+    "options": {
+      "everybody": "Everyone",
+      "justSubs": "Subs",
+      "subs": "Subs + VIPs + Mods",
+      "vips": "VIPs + Mods",
+      "mods": "Mods",
+      "broadcaster": "Broadcaster"
+    },
+    "default": "broadcaster",
+    "group": "Settings"
+  },
+  "horizontalAlign": {
+    "type": "dropdown",
+    "label": "Horizontal alignment",
+    "options": {
+      "flex-start": "Left",
+      "center": "Center",
+      "flex-end": "Right"
+    },
+    "default": "center",
+    "group": "Settings"
+  },
+  "verticalAlign": {
+    "type": "dropdown",
+    "label": "Vertical alignment",
+    "options": {
+      "flex-start": "Top",
+      "center": "Center",
+      "flex-end": "Bottom"
+    },
+    "default": "center",
+    "group": "Settings"
+  },
+  "volume": {
+    "type": "slider",
+    "label": "Sound volume",
+    "value": 1,
+    "min": 0,
+    "max": 1,
+    "steps": 0.1,
+    "group": "Settings"
+  },
+  "timer_reward_1": {
+    "type": "string",
+    "label": "Reward 1 (VISIBLE:REWARD NAME:SEC)",
+    "value": "",
+    "group": "Timer Rewards"
+  },
+  "timer_reward_2": {
+    "type": "string",
+    "label": "Reward 2 (VISIBLE:REWARD NAME:SEC)",
+    "value": "",
+    "group": "Timer Rewards"
+  },
+  "timer_reward_3": {
+    "type": "string",
+    "label": "Reward 3 (VISIBLE:REWARD NAME:SEC)",
+    "value": "",
+    "group": "Timer Rewards"
+  },
+  "timer_reward_4": {
+    "type": "string",
+    "label": "Reward 4 (VISIBLE:REWARD NAME:SEC)",
+    "value": "",
+    "group": "Timer Rewards"
+  },
+  "timer_reward_5": {
+    "type": "string",
+    "label": "Reward 5 (VISIBLE:REWARD NAME:SEC)",
+    "value": "",
+    "group": "Timer Rewards"
+  },
+  "timer_reward_6": {
+    "type": "string",
+    "label": "Reward 6 (VISIBLE:REWARD NAME:SEC)",
+    "value": "",
+    "group": "Timer Rewards"
+  },
+  "timer_reward_7": {
+    "type": "string",
+    "label": "Reward 7 (VISIBLE:REWARD NAME:SEC)",
+    "value": "",
+    "group": "Timer Rewards"
+  },
+  "timer_reward_8": {
+    "type": "string",
+    "label": "Reward 8 (VISIBLE:REWARD NAME:SEC)",
+    "value": "",
+    "group": "Timer Rewards"
+  },
+  "timer_reward_9": {
+    "type": "string",
+    "label": "Reward 9 (VISIBLE:REWARD NAME:SEC)",
+    "value": "",
+    "group": "Timer Rewards"
+  },
+  "timer_reward_10": {
+    "type": "string",
+    "label": "Reward 10 (VISIBLE:REWARD NAME:SEC)",
+    "value": "",
+    "group": "Timer Rewards"
+  },
+  "oneTime_reward_1": {
+    "type": "string",
+    "label": "Reward 1 (VISIBLE:REWARD NAME)",
+    "value": "",
+    "group": "One-Time Rewards"
+  },
+  "oneTime_reward_2": {
+    "type": "string",
+    "label": "Reward 2 (VISIBLE:REWARD NAME)",
+    "value": "",
+    "group": "One-Time Rewards"
+  },
+  "oneTime_reward_3": {
+    "type": "string",
+    "label": "Reward 3 (VISIBLE:REWARD NAME)",
+    "value": "",
+    "group": "One-Time Rewards"
+  },
+  "oneTime_reward_4": {
+    "type": "string",
+    "label": "Reward 4 (VISIBLE:REWARD NAME)",
+    "value": "",
+    "group": "One-Time Rewards"
+  },
+  "oneTime_reward_5": {
+    "type": "string",
+    "label": "Reward 5 (VISIBLE:REWARD NAME)",
+    "value": "",
+    "group": "One-Time Rewards"
+  },
+  "oneTime_reward_6": {
+    "type": "string",
+    "label": "Reward 6 (VISIBLE:REWARD NAME)",
+    "value": "",
+    "group": "One-Time Rewards"
+  },
+  "oneTime_reward_7": {
+    "type": "string",
+    "label": "Reward 7 (VISIBLE:REWARD NAME)",
+    "value": "",
+    "group": "One-Time Rewards"
+  },
+  "oneTime_reward_8": {
+    "type": "string",
+    "label": "Reward 8 (VISIBLE:REWARD NAME)",
+    "value": "",
+    "group": "One-Time Rewards"
+  },
+  "oneTime_reward_9": {
+    "type": "string",
+    "label": "Reward 9 (VISIBLE:REWARD NAME)",
+    "value": "",
+    "group": "One-Time Rewards"
+  },
+  "oneTime_reward_10": {
+    "type": "string",
+    "label": "Reward 10 (VISIBLE:REWARD NAME)",
+    "value": "",
+    "group": "One-Time Rewards"
+  }
+}
