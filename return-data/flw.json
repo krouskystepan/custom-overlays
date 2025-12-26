@@ -1,0 +1,38 @@
+{
+  "type": "follower",
+  "name": "Kanya",
+  "amount": 27,
+  "count": 27,
+  "items": [
+    {
+      "name": "Shirt",
+      "price": 36,
+      "quantity": 2
+    },
+    {
+      "name": "Hat",
+      "price": 8,
+      "quantity": 2
+    },
+    {
+      "name": "Mug",
+      "price": 7,
+      "quantity": 2
+    },
+    {
+      "name": "Hoodie",
+      "price": 15,
+      "quantity": 3
+    },
+    {
+      "name": "Protein powder",
+      "price": 43,
+      "quantity": 1
+    }
+  ],
+  "tier": "1000",
+  "month": "April",
+  "isTest": true,
+  "sessionTop": false,
+  "originalEventName": "follower-latest"
+}
