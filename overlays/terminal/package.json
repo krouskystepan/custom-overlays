@@ -1,0 +1,14 @@
+{
+  "name": "@custom/overlay-terminal",
+  "private": true,
+  "scripts": {
+    "dev": "VITE_CJS_IGNORE_WARNING=true vite dev",
+    "build": "VITE_CJS_IGNORE_WARNING=true vite build"
+  },
+  "dependencies": {
+    "@custom/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.3"
+  }
+}

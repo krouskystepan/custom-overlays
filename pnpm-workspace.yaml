@@ -1,0 +1,8 @@
+packages:
+  - server
+  - shared
+  - overlays/*
+
+onlyBuiltDependencies:
+  - esbuild
+  - puppeteer

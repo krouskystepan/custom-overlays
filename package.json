@@ -1,0 +1,16 @@
+{
+  "name": "custom-overlays",
+  "private": true,
+  "packageManager": "pnpm@10.26.2",
+  "scripts": {
+    "dev": "pnpm -r --parallel dev",
+    "dev:server": "pnpm -C server dev",
+    "build": "pnpm -r build",
+    "start:server": "pnpm -C server start",
+    "gpkce": "pnpm --filter @custom/server exec tsx src/scripts/generate-pkce.ts",
+    "mockEvent": "pnpm --filter @custom/server exec tsx src/scripts/mock-kick.ts"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}
