@@ -8,7 +8,7 @@ if (!SE_SECRET) {
 }
 
 export const streamelementsWebhook = {
-  verify(req: any, _: any, buf: Buffer) {
+  verify(req: Request & { rawBody?: Buffer }, _: unknown, buf: Buffer) {
     req.rawBody = buf
   },
 

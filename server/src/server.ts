@@ -12,7 +12,6 @@ import { subscribeToKickEvents } from './kick/subscribe'
 import { mockKick } from './mock/kick'
 import { startKickChat } from './kick/chat'
 import { startKickTokenRefresher } from './kick/token/token-refresh'
-import { ALLOWED_ORIGINS } from './config/security'
 
 const HTTP_PORT = Number(process.env.HTTP_PORT || 3000)
 
@@ -22,17 +21,6 @@ if (process.env.NODE_ENV === 'development') {
   app.post('/__mock/kick', mockKick)
 }
 
-const corsMiddleware = cors({
-  origin(origin, callback) {
-    if (!origin || ALLOWED_ORIGINS.has(origin)) {
-      callback(null, true)
-      return
-    }
-
-    callback(new Error(`CORS blocked: ${origin}`))
-  }
-})
-
 app.get('/oauth/callback', oauthCallback)
 
 app.post(
@@ -41,14 +29,18 @@ app.post(
   kickWebhook.handler(broadcast)
 )
 
+const seCors = cors({
+  origin: true
+})
+
 app.post(
   '/streamelements/events',
-  corsMiddleware,
+  seCors,
   express.json({ verify: streamelementsWebhook.verify }),
   streamelementsWebhook.handler(broadcast)
 )
 
-app.options('/streamelements/events', corsMiddleware)
+app.options('/streamelements/events', seCors)
 
 const httpServer = createServer(app)
 initWS(httpServer)
