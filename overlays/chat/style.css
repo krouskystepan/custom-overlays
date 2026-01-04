@@ -1,8 +1,7 @@
 body {
   margin: 0;
   background: transparent;
-  font-family: monospace;
-  color: white;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 #chat {
@@ -42,8 +41,9 @@ body {
 .emote {
   height: 1.2em;
   vertical-align: middle;
+  margin: 0 1px;
 }
 
 .message {
-  white-space: pre-wrap;
+  word-spacing: -0.25em;
 }

@@ -33,9 +33,7 @@ export function renderMessage(event: ChatOverlayEvent): void {
 
   const parts = parseMessage(event.content)
 
-  for (let i = 0; i < parts.length; i++) {
-    const part = parts[i]
-
+  for (const part of parts) {
     if (part.type === 'text') {
       message.append(document.createTextNode(part.value))
     } else {
@@ -44,10 +42,6 @@ export function renderMessage(event: ChatOverlayEvent): void {
       img.alt = part.emote.name
       img.className = 'emote'
       message.append(img)
-    }
-
-    if (i < parts.length - 1) {
-      message.append(document.createTextNode(' '))
     }
   }
 
