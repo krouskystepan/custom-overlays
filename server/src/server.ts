@@ -12,8 +12,7 @@ import { subscribeToKickEvents } from './kick/subscribe'
 import { mockKick } from './mock/kick'
 import { startKickChat } from './kick/chat'
 import { startKickTokenRefresher } from './kick/token/token-refresh'
-
-const HTTP_PORT = Number(process.env.HTTP_PORT || 3000)
+import { CHANNEL_NAME, SERVER_HTTP_PORT } from '@custom/shared'
 
 const app = express()
 
@@ -45,11 +44,11 @@ app.options('/streamelements/events', seCors)
 const httpServer = createServer(app)
 initWS(httpServer)
 
-httpServer.listen(HTTP_PORT, async () => {
+httpServer.listen(SERVER_HTTP_PORT, async () => {
   printDevBanner()
 
   await subscribeToKickEvents()
-  startKickChat(process.env.KICK_CHANNEL_NAME!, broadcast)
+  startKickChat(CHANNEL_NAME, broadcast)
 
   startKickTokenRefresher()
 })

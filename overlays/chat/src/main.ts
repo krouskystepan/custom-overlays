@@ -1,9 +1,7 @@
-import type { ChatOverlayEvent } from '@custom/shared'
+import { CHANNEL_NAME, type ChatOverlayEvent } from '@custom/shared'
 import { renderMessage } from './chat/renderer'
 import { loadKickEmotes } from './emotes/loadKick'
 import { load7TVChannelEmotes } from './emotes/load7tvChannel'
-
-const KICK_CHANNEL_SLUG = 'd4rzk'
 
 async function start(): Promise<void> {
   const WS_URL = import.meta.env.VITE_BACKEND_WS_URL as string
@@ -12,16 +10,16 @@ async function start(): Promise<void> {
   }
 
   const channelRes = await fetch(
-    `https://kick.com/api/v2/channels/${KICK_CHANNEL_SLUG}`
+    `https://kick.com/api/v2/channels/${CHANNEL_NAME}`
   )
 
   if (!channelRes.ok) {
     throw new Error('Failed to load Kick channel')
   }
 
-  const channel: { id: number } = await channelRes.json()
+  const channel: { id: number; user_id: number } = await channelRes.json()
 
-  await Promise.all([loadKickEmotes(), load7TVChannelEmotes(channel.id)])
+  await Promise.all([loadKickEmotes(), load7TVChannelEmotes(channel.user_id)])
 
   const ws = new WebSocket(WS_URL)
 

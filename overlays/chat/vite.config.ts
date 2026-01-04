@@ -1,11 +1,10 @@
-import { defineConfig, loadEnv } from 'vite'
+import { defineConfig } from 'vite'
+import { OVERLAY_CHAT_PORT } from '../../shared/src'
 
-export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '')
-
+export default defineConfig(() => {
   return {
     server: {
-      port: Number(env.OVERLAY_CHAT_PORT),
+      port: OVERLAY_CHAT_PORT,
       strictPort: true
     }
   }

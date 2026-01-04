@@ -1,5 +1,5 @@
 import { createClient } from '@retconned/kick-js'
-import type { ChatOverlayEvent } from '@custom/shared'
+import { CHANNEL_NAME, type ChatOverlayEvent } from '@custom/shared'
 
 export async function startKickChat(
   channel: string,
@@ -36,7 +36,5 @@ export async function startKickChat(
     })
   })
 
-  console.log(
-    `✅ Kick chat client initialized ${process.env.KICK_CHANNEL_NAME}`
-  )
+  console.log(`✅ Kick chat client initialized ${CHANNEL_NAME}`)
 }

@@ -2,8 +2,8 @@
   "name": "@custom/overlay-chat",
   "private": true,
   "scripts": {
-    "dev": "VITE_CJS_IGNORE_WARNING=true vite dev",
-    "build": "VITE_CJS_IGNORE_WARNING=true vite build"
+    "dev": "vite dev",
+    "build": "vite build"
   },
   "dependencies": {
     "@custom/shared": "workspace:*"
