@@ -1,7 +1,7 @@
 import fs from 'fs/promises'
 import path from 'path'
 
-const TOKEN_PATH = path.resolve(process.cwd(), 'src/data/kick-token.json')
+const TOKEN_PATH = path.resolve(process.cwd(), 'data/kick-token.json')
 
 type StoredToken = {
   access_token: string
@@ -9,14 +9,21 @@ type StoredToken = {
   expires_at: number
 }
 
+export class KickTokenNotInitializedError extends Error {
+  constructor() {
+    super('Kick token not initialized – run OAuth once')
+    this.name = 'KickTokenNotInitializedError'
+  }
+}
+
 export async function getKickAccessToken(): Promise<string> {
   let token: StoredToken
 
   try {
     const raw = await fs.readFile(TOKEN_PATH, 'utf-8')
-    token = JSON.parse(raw)
-  } catch {
-    throw new Error('Kick token not initialized – run OAuth once')
+    token = JSON.parse(raw) as StoredToken
+  } catch (err) {
+    throw new KickTokenNotInitializedError()
   }
 
   if (Date.now() < token.expires_at - 60_000) {
@@ -33,12 +40,15 @@ export async function getKickAccessToken(): Promise<string> {
       client_secret: process.env.KICK_CLIENT_SECRET!
     })
   })
-  console.log('🔄 Refreshing Kick access token...')
-
-  const data = await response.json()
 
   if (!response.ok) {
     throw new Error('Failed to refresh Kick token')
+  }
+
+  const data = (await response.json()) as {
+    access_token: string
+    refresh_token?: string
+    expires_in: number
   }
 
   const updated: StoredToken = {
@@ -47,8 +57,8 @@ export async function getKickAccessToken(): Promise<string> {
     expires_at: Date.now() + data.expires_in * 1000
   }
 
+  await fs.mkdir(path.dirname(TOKEN_PATH), { recursive: true })
   await fs.writeFile(TOKEN_PATH, JSON.stringify(updated, null, 2))
-  console.log('💾 Kick token refreshed and saved')
 
   return updated.access_token
 }
