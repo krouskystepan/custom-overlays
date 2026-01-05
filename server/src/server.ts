@@ -13,6 +13,7 @@ import { mockKick } from './mock/kick'
 import { startKickChat } from './kick/chat'
 import { startKickTokenRefresher } from './kick/token/token-refresh'
 import { CHANNEL_NAME, SERVER_HTTP_PORT } from '@custom/shared'
+import { oauthStart } from './kick/oauth/start'
 
 const app = express()
 
@@ -20,6 +21,7 @@ if (process.env.NODE_ENV === 'development') {
   app.post('/__mock/kick', mockKick)
 }
 
+app.get('/oauth/start', oauthStart)
 app.get('/oauth/callback', oauthCallback)
 
 app.post(
@@ -47,8 +49,9 @@ initWS(httpServer)
 httpServer.listen(SERVER_HTTP_PORT, async () => {
   if (process.env.NODE_ENV === 'development') printDevBanner()
 
-  await subscribeToKickEvents()
-  startKickChat(CHANNEL_NAME, broadcast)
-
   startKickTokenRefresher()
+
+  await subscribeToKickEvents()
+
+  startKickChat(CHANNEL_NAME, broadcast)
 })
