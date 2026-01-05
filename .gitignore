@@ -10,6 +10,7 @@ build/
 
 # misc
 .DS_Store
+kick-verifier.txt
 kick-token.json
 dump/
 logs/

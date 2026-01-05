@@ -23,8 +23,10 @@ export async function oauthStart(_req: Request, res: Response) {
     response_type: 'code',
     client_id: process.env.KICK_CLIENT_ID!,
     redirect_uri: process.env.KICK_REDIRECT_URI!,
+    scope: 'events:subscribe channel:read',
     code_challenge: challenge,
-    code_challenge_method: 'S256'
+    code_challenge_method: 'S256',
+    state: '123456789'
   })
 
   res.redirect(`https://id.kick.com/oauth/authorize?${params}`)
