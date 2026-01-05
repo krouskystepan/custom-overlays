@@ -1,5 +1,9 @@
 import { Request, Response } from 'express'
+import fs from 'fs/promises'
+import path from 'path'
 import { saveToken } from './kick/token/tokenStore'
+
+const VERIFIER_PATH = path.resolve('data/kick-verifier.txt')
 
 export async function oauthCallback(req: Request, res: Response) {
   const code = req.query.code as string
@@ -7,9 +11,11 @@ export async function oauthCallback(req: Request, res: Response) {
     return res.status(400).send('Missing code')
   }
 
-  const codeVerifier = process.env.KICK_CODE_VERIFIER
-  if (!codeVerifier) {
-    return res.status(500).send('Missing KICK_CODE_VERIFIER')
+  let codeVerifier: string
+  try {
+    codeVerifier = await fs.readFile(VERIFIER_PATH, 'utf-8')
+  } catch {
+    return res.status(500).send('Missing PKCE verifier (run OAuth again)')
   }
 
   const response = await fetch('https://id.kick.com/oauth/token', {

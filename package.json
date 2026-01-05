@@ -7,7 +7,6 @@
     "dev:server": "pnpm -C server dev",
     "build": "pnpm -r build",
     "start:server": "pnpm -C server start",
-    "gpkce": "pnpm --filter @custom/server exec tsx src/scripts/generate-pkce.ts",
     "mockEvent": "pnpm --filter @custom/server exec tsx src/scripts/mock-kick.ts"
   },
   "devDependencies": {

@@ -45,7 +45,7 @@ const httpServer = createServer(app)
 initWS(httpServer)
 
 httpServer.listen(SERVER_HTTP_PORT, async () => {
-  printDevBanner()
+  if (process.env.NODE_ENV === 'development') printDevBanner()
 
   await subscribeToKickEvents()
   startKickChat(CHANNEL_NAME, broadcast)
