@@ -47,11 +47,15 @@ const httpServer = createServer(app)
 initWS(httpServer)
 
 httpServer.listen(SERVER_HTTP_PORT, async () => {
-  if (process.env.NODE_ENV === 'development') printDevBanner()
+  if (process.env.NODE_ENV === 'development') {
+    // DEV ONLY
+    printDevBanner()
+  } else {
+    //? Need https NOT http
+    startKickTokenRefresher()
 
-  startKickTokenRefresher()
-
-  await subscribeToKickEvents()
+    await subscribeToKickEvents()
+  }
 
   startKickChat(CHANNEL_NAME, broadcast)
 })

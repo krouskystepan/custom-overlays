@@ -1,6 +1,5 @@
 import { CHANNEL_NAME, type ChatOverlayEvent } from '@custom/shared'
 import { renderMessage } from './chat/renderer'
-import { loadKickEmotes } from './emotes/loadKick'
 import { load7TVChannelEmotes } from './emotes/load7tvChannel'
 
 async function start(): Promise<void> {
@@ -19,7 +18,7 @@ async function start(): Promise<void> {
 
   const channel: { id: number; user_id: number } = await channelRes.json()
 
-  await Promise.all([loadKickEmotes(), load7TVChannelEmotes(channel.user_id)])
+  await Promise.all([load7TVChannelEmotes(channel.user_id)])
 
   const ws = new WebSocket(WS_URL)
 

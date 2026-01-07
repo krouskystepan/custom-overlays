@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@custom/shared": "workspace:*",
-    "@retconned/kick-js": "^0.5.4",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",

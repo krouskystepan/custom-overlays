@@ -1,53 +1,70 @@
 import type { ParsedPart, Emote } from '../emotes/types'
 import { sevenTvEmotes, kickEmotes } from '../emotes/registry'
 
-function getEmote(name: string): Emote | null {
-  // prio: 7TV > Kick
-  return sevenTvEmotes.get(name) ?? kickEmotes.get(name) ?? null
-}
+const KICK_EMOTE_REGEX = /\[emote:(\d+):([^\]]+)\]/g
 
-function isEmote(token: string): token is string {
-  return sevenTvEmotes.has(token) || kickEmotes.has(token)
-}
+function parseTextFallback(text: string): ParsedPart[] {
+  const parts: ParsedPart[] = []
+  const tokens = text.split(/(\s+)/)
 
-export function parseMessage(input: string): ParsedPart[] {
-  const result: ParsedPart[] = []
-  let buffer = ''
-
-  const tokens = input.split(/(\s+)/)
-
-  for (let i = 0; i < tokens.length; i++) {
-    const token = tokens[i]
-
-    const prev = tokens[i - 1]
-    const next = tokens[i + 1]
-
-    const isWhitespace = /^\s+$/.test(token)
-
-    if (isWhitespace && prev && next && isEmote(prev) && isEmote(next)) {
+  for (const token of tokens) {
+    if (sevenTvEmotes.has(token)) {
+      parts.push({
+        type: 'emote',
+        emote: sevenTvEmotes.get(token)!
+      })
       continue
     }
 
-    if (isEmote(token)) {
-      if (buffer.length > 0) {
-        result.push({ type: 'text', value: buffer })
-        buffer = ''
-      }
-
-      const emote = getEmote(token)
-      if (emote) {
-        result.push({ type: 'emote', emote })
-      } else {
-        buffer += token
-      }
-    } else {
-      buffer += token
+    if (kickEmotes.has(token)) {
+      parts.push({
+        type: 'emote',
+        emote: kickEmotes.get(token)!
+      })
+      continue
     }
+
+    parts.push({
+      type: 'text',
+      value: token
+    })
   }
 
-  if (buffer.length > 0) {
-    result.push({ type: 'text', value: buffer })
+  return parts
+}
+
+export function parseMessage(content: string): ParsedPart[] {
+  const parts: ParsedPart[] = []
+
+  let lastIndex = 0
+  let match: RegExpExecArray | null
+
+  while ((match = KICK_EMOTE_REGEX.exec(content)) !== null) {
+    const [raw, id, name] = match
+    const start = match.index
+
+    if (start > lastIndex) {
+      parts.push(...parseTextFallback(content.slice(lastIndex, start)))
+    }
+
+    const emote: Emote = {
+      name,
+      provider: 'kick',
+      urls: {
+        x1: `https://files.kick.com/emotes/${id}/fullsize`,
+        x2: `https://files.kick.com/emotes/${id}/fullsize`,
+        x3: `https://files.kick.com/emotes/${id}/fullsize`
+      }
+    }
+
+    parts.push({ type: 'emote', emote })
+
+    lastIndex = start + raw.length
   }
 
-  return result
+  if (lastIndex < content.length) {
+    parts.push(...parseTextFallback(content.slice(lastIndex)))
+  }
+
+  return parts
 }
