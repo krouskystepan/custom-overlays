@@ -14,8 +14,12 @@ import { startKickChat } from './kick/chat'
 import { startKickTokenRefresher } from './kick/token/token-refresh'
 import { CHANNEL_NAME, SERVER_HTTP_PORT } from '@custom/shared'
 import { oauthStart } from './kick/oauth/start'
+import { getKickChannel } from './routes/kick'
+import { corsOptions } from './config/security'
 
 const app = express()
+
+app.use(cors(corsOptions))
 
 if (process.env.NODE_ENV === 'development') {
   app.post('/__mock/kick', mockKick)
@@ -23,6 +27,7 @@ if (process.env.NODE_ENV === 'development') {
 
 app.get('/oauth/start', oauthStart)
 app.get('/oauth/callback', oauthCallback)
+app.get('/api/kick/channel/:channelName', getKickChannel)
 
 app.post(
   '/kick/events',
