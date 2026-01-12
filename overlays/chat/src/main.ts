@@ -1,6 +1,6 @@
 import { CHANNEL_NAME, type ChatOverlayEvent } from '@custom/shared'
 import { renderMessage } from './chat/renderer'
-import { load7TVChannelEmotes } from './emotes/load7tvChannel'
+import { load7TVGlobalEmotes, load7TVChannelEmotes } from './emotes/load7tv'
 
 async function start(): Promise<void> {
   const WS_URL = import.meta.env.VITE_BACKEND_WS_URL as string
@@ -21,7 +21,10 @@ async function start(): Promise<void> {
 
   const channel: { id: number; user_id: number } = await channelRes.json()
 
-  await Promise.all([load7TVChannelEmotes(channel.user_id)])
+  await Promise.all([
+    load7TVGlobalEmotes(),
+    load7TVChannelEmotes(channel.user_id)
+  ])
 
   const ws = new WebSocket(WS_URL)
 
