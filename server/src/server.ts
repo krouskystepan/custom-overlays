@@ -34,7 +34,6 @@ process.on('SIGINT', () => {
 })
 
 const app = express()
-
 app.use(cors(corsOptions))
 
 if (process.env.NODE_ENV === 'development') {
@@ -44,6 +43,24 @@ if (process.env.NODE_ENV === 'development') {
 app.get('/oauth/start', oauthStart)
 app.get('/oauth/callback', oauthCallback)
 app.get('/api/kick/channel/:channelName', getKickChannel)
+
+app.get('/events', (req, res) => {
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    Connection: 'keep-alive'
+  })
+
+  res.write(': connected\n\n')
+
+  const heartbeat = setInterval(() => {
+    res.write(': keepalive\n\n')
+  }, 25_000)
+
+  req.on('close', () => {
+    clearInterval(heartbeat)
+  })
+})
 
 app.post(
   '/kick/events',
