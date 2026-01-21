@@ -17,6 +17,22 @@ import { oauthStart } from './kick/oauth/start'
 import { getKickChannel } from './routes/kick'
 import { corsOptions } from './config/security'
 
+process.on('unhandledRejection', (err) => {
+  console.error('[UNHANDLED REJECTION]', err)
+})
+
+process.on('uncaughtException', (err) => {
+  console.error('[UNCAUGHT EXCEPTION]', err)
+})
+
+process.on('SIGTERM', () => {
+  console.log('[SIGTERM] received')
+})
+
+process.on('SIGINT', () => {
+  console.log('[SIGINT] received')
+})
+
 const app = express()
 
 app.use(cors(corsOptions))
@@ -35,9 +51,7 @@ app.post(
   kickWebhook.handler(broadcast)
 )
 
-const seCors = cors({
-  origin: true
-})
+const seCors = cors({ origin: true })
 
 app.post(
   '/streamelements/events',
@@ -51,16 +65,38 @@ app.options('/streamelements/events', seCors)
 const httpServer = createServer(app)
 initWS(httpServer)
 
-httpServer.listen(SERVER_HTTP_PORT, async () => {
-  if (process.env.NODE_ENV === 'development') {
-    // DEV ONLY
-    printDevBanner()
-  } else {
-    //? Need https NOT http
-    startKickTokenRefresher()
+httpServer.listen(SERVER_HTTP_PORT, () => {
+  console.log(`[HTTP] listening on port ${SERVER_HTTP_PORT}`)
 
-    await subscribeToKickEvents()
+  if (process.env.NODE_ENV === 'development') {
+    printDevBanner()
+    return
   }
 
-  startKickChat(CHANNEL_NAME, broadcast)
+  try {
+    startKickTokenRefresher()
+  } catch (err) {
+    console.error('[Kick token refresher failed]', err)
+  }
+
+  subscribeToKickEvents().catch((err) => {
+    console.error('[Kick event subscription failed]', err)
+  })
+
+  try {
+    const maybePromise = startKickChat(CHANNEL_NAME, broadcast)
+
+    if (
+      maybePromise &&
+      typeof (maybePromise as Promise<void>).catch === 'function'
+    ) {
+      ;(maybePromise as Promise<void>).catch((err) => {
+        console.error('[Kick chat failed]', err)
+      })
+    }
+  } catch (err) {
+    console.error('[Kick chat threw synchronously]', err)
+  }
 })
+
+setInterval(() => {}, 1 << 30)

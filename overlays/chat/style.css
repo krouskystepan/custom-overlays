@@ -1,13 +1,23 @@
+html,
 body {
   margin: 0;
-  background: transparent;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  height: 100%;
+}
+
+body {
+  background: hsla(0, 0%, 100%, 0);
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
 }
 
 #chat {
-  padding: 8px;
+  height: 100%;
   display: flex;
   flex-direction: column;
+  justify-content: flex-end;
   gap: 4px;
 }
 
@@ -45,6 +55,6 @@ body {
 }
 
 .message {
-  word-spacing: -0.25em;
+  word-spacing: 0.125em;
   color: whitesmoke;
 }
