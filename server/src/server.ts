@@ -87,7 +87,6 @@ httpServer.listen(SERVER_HTTP_PORT, () => {
 
   if (process.env.NODE_ENV === 'development') {
     printDevBanner()
-    return
   }
 
   try {
