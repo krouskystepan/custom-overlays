@@ -28,11 +28,8 @@ async function start(): Promise<void> {
 
   const ws = new WebSocket(WS_URL)
 
-  console.log(ws)
-
   ws.addEventListener('message', (e) => {
     const data = JSON.parse(e.data)
-    console.log(data)
 
     if (data.type !== 'message') return
 
