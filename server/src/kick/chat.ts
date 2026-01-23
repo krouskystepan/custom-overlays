@@ -3,10 +3,10 @@ import { type ChatOverlayEvent } from '@custom/shared'
 
 let activeSocket: WebSocket | null = null
 let reconnectTimer: NodeJS.Timeout | null = null
-let lastMessageAt = Date.now()
+let pingInterval: NodeJS.Timeout | null = null
 
 const RECONNECT_DELAY_MS = 5_000
-const DEAD_CONNECTION_MS = 150_000
+const PING_INTERVAL_MS = 60_000
 
 async function getChatroomId(channel: string): Promise<number> {
   const res = await fetch(`https://kick.com/api/v2/channels/${channel}`, {
@@ -53,6 +53,11 @@ export async function startKickChat(
     activeSocket = null
   }
 
+  if (pingInterval) {
+    clearInterval(pingInterval)
+    pingInterval = null
+  }
+
   const CHATROOM_ID = await getChatroomId(channel)
 
   const ws = new WebSocket(
@@ -60,14 +65,6 @@ export async function startKickChat(
   )
 
   activeSocket = ws
-  lastMessageAt = Date.now()
-
-  const watchdog = setInterval(() => {
-    if (Date.now() - lastMessageAt > DEAD_CONNECTION_MS) {
-      console.error('[Kick chat dead connection detected]')
-      ws.terminate()
-    }
-  }, 30_000)
 
   ws.on('open', () => {
     console.log(`✅ Connected to Kick Chat WS: ${channel}`)
@@ -80,14 +77,17 @@ export async function startKickChat(
         }
       })
     )
+
+    pingInterval = setInterval(() => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.ping()
+      }
+    }, PING_INTERVAL_MS)
   })
 
   ws.on('message', (raw) => {
-    lastMessageAt = Date.now()
-
-    process.stdout.write(`[RAW WS] ${raw.toString()}\n`)
-
     let payload: { event?: string; data?: string }
+
     try {
       payload = JSON.parse(raw.toString())
     } catch {
@@ -144,14 +144,24 @@ export async function startKickChat(
 
   ws.on('close', (code, reason) => {
     console.error('[Kick chat WS closed]', code, reason.toString())
-    clearInterval(watchdog)
+
+    if (pingInterval) {
+      clearInterval(pingInterval)
+      pingInterval = null
+    }
+
     activeSocket = null
     scheduleReconnect(channel, broadcast)
   })
 
   ws.on('error', (err) => {
     console.error('[Kick chat WS error]', err)
-    clearInterval(watchdog)
+
+    if (pingInterval) {
+      clearInterval(pingInterval)
+      pingInterval = null
+    }
+
     activeSocket = null
     scheduleReconnect(channel, broadcast)
   })
