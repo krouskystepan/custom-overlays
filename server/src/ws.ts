@@ -37,7 +37,6 @@ export function initWS(httpServer: HTTPServer) {
 
 export function broadcast(event: AlertOverlayEvent | ChatOverlayEvent) {
   const payload = JSON.stringify(event)
-  console.log('[WEBHOOK]', event.type)
 
   for (const client of clients) {
     if (client.readyState === WebSocket.OPEN) {

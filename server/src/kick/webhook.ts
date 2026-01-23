@@ -43,6 +43,8 @@ export const kickWebhook = {
       const eventType = req.headers['kick-event-type'] as string
       const event = mapKickEvent(req.body, eventType)
 
+      console.log('[WEBHOOK]', event?.type)
+
       if (event) {
         broadcast(event)
       }
