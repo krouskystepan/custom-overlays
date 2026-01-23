@@ -1,5 +1,5 @@
 import WebSocket from 'ws'
-import { type ChatOverlayEvent } from '@custom/shared'
+import { publish } from '../events/bus'
 
 let activeSocket: WebSocket | null = null
 let reconnectTimer: NodeJS.Timeout | null = null
@@ -29,24 +29,18 @@ async function getChatroomId(channel: string): Promise<number> {
   return data.chatroom.id
 }
 
-function scheduleReconnect(
-  channel: string,
-  broadcast: (event: ChatOverlayEvent) => void
-) {
+function scheduleReconnect(channel: string) {
   if (reconnectTimer) return
 
   reconnectTimer = setTimeout(() => {
     reconnectTimer = null
-    startKickChat(channel, broadcast).catch((err) => {
+    startKickChat(channel).catch((err) => {
       console.error('[Kick chat reconnect failed]', err)
     })
   }, RECONNECT_DELAY_MS)
 }
 
-export async function startKickChat(
-  channel: string,
-  broadcast: (event: ChatOverlayEvent) => void
-) {
+export async function startKickChat(channel: string) {
   if (activeSocket) {
     activeSocket.removeAllListeners()
     activeSocket.terminate()
@@ -121,7 +115,7 @@ export async function startKickChat(
       return
     }
 
-    broadcast({
+    publish({
       type: 'message',
       content: data.content,
       created_at: new Date(data.created_at),
@@ -151,7 +145,7 @@ export async function startKickChat(
     }
 
     activeSocket = null
-    scheduleReconnect(channel, broadcast)
+    scheduleReconnect(channel)
   })
 
   ws.on('error', (err) => {
@@ -163,6 +157,6 @@ export async function startKickChat(
     }
 
     activeSocket = null
-    scheduleReconnect(channel, broadcast)
+    scheduleReconnect(channel)
   })
 }

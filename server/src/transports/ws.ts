@@ -1,10 +1,9 @@
 import { WebSocketServer, WebSocket } from 'ws'
 import type { Server as HTTPServer } from 'http'
-import type { AlertOverlayEvent, ChatOverlayEvent } from '@custom/shared'
-import { ALLOWED_ORIGINS } from './config/security'
+import { ALLOWED_ORIGINS } from '../config/security'
+import { subscribe } from '../events/bus'
 
 type Client = WebSocket
-
 const clients = new Set<Client>()
 
 export function initWS(httpServer: HTTPServer) {
@@ -33,14 +32,14 @@ export function initWS(httpServer: HTTPServer) {
       clients.delete(ws)
     })
   })
-}
 
-export function broadcast(event: AlertOverlayEvent | ChatOverlayEvent) {
-  const payload = JSON.stringify(event)
+  subscribe((event) => {
+    const payload = JSON.stringify(event)
 
-  for (const client of clients) {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(payload)
+    for (const client of clients) {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(payload)
+      }
     }
-  }
+  })
 }

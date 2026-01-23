@@ -5,7 +5,7 @@ import cors from 'cors'
 
 import { kickWebhook } from './kick/webhook'
 import { streamelementsWebhook } from './streamelements/webhook'
-import { initWS, broadcast } from './ws'
+import { initSSE, handleSSE } from './transports/sse'
 import { oauthCallback } from './oauth'
 import { printDevBanner } from './devBanner'
 import { subscribeToKickEvents } from './kick/subscribe'
@@ -17,70 +17,37 @@ import { oauthStart } from './kick/oauth/start'
 import { getKickChannel } from './routes/kick'
 import { corsOptions } from './config/security'
 
-process.on('unhandledRejection', (err) => {
-  console.error('[UNHANDLED REJECTION]', err)
-})
-
-process.on('uncaughtException', (err) => {
-  console.error('[UNCAUGHT EXCEPTION]', err)
-})
-
-process.on('SIGTERM', () => {
-  console.log('[SIGTERM] received')
-})
-
-process.on('SIGINT', () => {
-  console.log('[SIGINT] received')
-})
-
 const app = express()
 app.use(cors(corsOptions))
+app.use(express.json({ limit: '256kb' }))
 
 if (process.env.NODE_ENV === 'development') {
   app.post('/__mock/kick', mockKick)
 }
 
+app.get('/health', (_, res) => res.json({ ok: true }))
 app.get('/oauth/start', oauthStart)
 app.get('/oauth/callback', oauthCallback)
 app.get('/api/kick/channel/:channelName', getKickChannel)
 
-app.get('/events', (req, res) => {
-  res.writeHead(200, {
-    'Content-Type': 'text/event-stream',
-    'Cache-Control': 'no-cache',
-    Connection: 'keep-alive'
-  })
-
-  res.write(': connected\n\n')
-
-  const heartbeat = setInterval(() => {
-    res.write(': keepalive\n\n')
-  }, 25_000)
-
-  req.on('close', () => {
-    clearInterval(heartbeat)
-  })
-})
+app.get('/events', handleSSE)
 
 app.post(
   '/kick/events',
   express.json({ verify: kickWebhook.verify }),
-  kickWebhook.handler(broadcast)
+  kickWebhook.handler()
 )
-
-const seCors = cors({ origin: true })
 
 app.post(
   '/streamelements/events',
-  seCors,
   express.json({ verify: streamelementsWebhook.verify }),
-  streamelementsWebhook.handler(broadcast)
+  streamelementsWebhook.handler()
 )
 
-app.options('/streamelements/events', seCors)
-
 const httpServer = createServer(app)
-initWS(httpServer)
+
+// initWS(httpServer)
+initSSE()
 
 httpServer.listen(SERVER_HTTP_PORT, () => {
   console.log(`[HTTP] listening on port ${SERVER_HTTP_PORT}`)
@@ -89,30 +56,7 @@ httpServer.listen(SERVER_HTTP_PORT, () => {
     printDevBanner()
   }
 
-  try {
-    startKickTokenRefresher()
-  } catch (err) {
-    console.error('[Kick token refresher failed]', err)
-  }
-
-  subscribeToKickEvents().catch((err) => {
-    console.error('[Kick event subscription failed]', err)
-  })
-
-  try {
-    const maybePromise = startKickChat(CHANNEL_NAME, broadcast)
-
-    if (
-      maybePromise &&
-      typeof (maybePromise as Promise<void>).catch === 'function'
-    ) {
-      ;(maybePromise as Promise<void>).catch((err) => {
-        console.error('[Kick chat failed]', err)
-      })
-    }
-  } catch (err) {
-    console.error('[Kick chat threw synchronously]', err)
-  }
+  startKickTokenRefresher()
+  subscribeToKickEvents().catch(console.error)
+  startKickChat(CHANNEL_NAME).catch(console.error)
 })
-
-setInterval(() => {}, 1 << 30)

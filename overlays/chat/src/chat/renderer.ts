@@ -11,6 +11,12 @@ export function renderMessage(event: ChatOverlayEvent): void {
   const line = document.createElement('div')
   line.className = 'line'
 
+  line.addEventListener('animationend', (e) => {
+    if ((e as AnimationEvent).animationName === 'disappear') {
+      line.remove()
+    }
+  })
+
   // BADGES
   const badges = resolveBadges(event)
   for (const badge of badges) {

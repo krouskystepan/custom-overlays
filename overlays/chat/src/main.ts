@@ -3,18 +3,12 @@ import { renderMessage } from './chat/renderer'
 import { load7TVGlobalEmotes, load7TVChannelEmotes } from './emotes/load7tv'
 
 async function start(): Promise<void> {
-  const WS_URL = import.meta.env.VITE_BACKEND_WS_URL as string
-  if (!WS_URL) {
-    throw new Error('VITE_BACKEND_WS_URL is not defined')
-  }
-
   const API_URL = import.meta.env.VITE_BACKEND_HTTP_URL as string
   if (!API_URL) {
     throw new Error('VITE_BACKEND_HTTP_URL is not defined')
   }
 
   const channelRes = await fetch(`${API_URL}/api/kick/channel/${CHANNEL_NAME}`)
-
   if (!channelRes.ok) {
     throw new Error('Failed to load Kick channel')
   }
@@ -26,14 +20,18 @@ async function start(): Promise<void> {
     load7TVChannelEmotes(channel.user_id)
   ])
 
-  const ws = new WebSocket(WS_URL)
+  const es = new EventSource(`${API_URL}/events`)
 
-  ws.addEventListener('message', (e) => {
+  es.addEventListener('message', (e) => {
     const data = JSON.parse(e.data)
 
     if (data.type !== 'message') return
 
     renderMessage(data as ChatOverlayEvent)
+  })
+
+  es.addEventListener('error', () => {
+    console.warn('[SSE] connection lost, browser will retry')
   })
 }
 
