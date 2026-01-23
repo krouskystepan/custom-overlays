@@ -1,6 +1,13 @@
 import WebSocket from 'ws'
 import { type ChatOverlayEvent } from '@custom/shared'
 
+let activeSocket: WebSocket | null = null
+let reconnectTimer: NodeJS.Timeout | null = null
+let lastMessageAt = Date.now()
+
+const RECONNECT_DELAY_MS = 5_000
+const DEAD_CONNECTION_MS = 150_000
+
 async function getChatroomId(channel: string): Promise<number> {
   const res = await fetch(`https://kick.com/api/v2/channels/${channel}`, {
     headers: {
@@ -13,9 +20,7 @@ async function getChatroomId(channel: string): Promise<number> {
     throw new Error(`Failed to load Kick channel ${channel} (${res.status})`)
   }
 
-  const data: {
-    chatroom?: { id: number }
-  } = await res.json()
+  const data: { chatroom?: { id: number } } = await res.json()
 
   if (!data.chatroom?.id) {
     throw new Error('chatroom_id not found')
@@ -24,15 +29,45 @@ async function getChatroomId(channel: string): Promise<number> {
   return data.chatroom.id
 }
 
+function scheduleReconnect(
+  channel: string,
+  broadcast: (event: ChatOverlayEvent) => void
+) {
+  if (reconnectTimer) return
+
+  reconnectTimer = setTimeout(() => {
+    reconnectTimer = null
+    startKickChat(channel, broadcast).catch((err) => {
+      console.error('[Kick chat reconnect failed]', err)
+    })
+  }, RECONNECT_DELAY_MS)
+}
+
 export async function startKickChat(
   channel: string,
   broadcast: (event: ChatOverlayEvent) => void
 ) {
+  if (activeSocket) {
+    activeSocket.removeAllListeners()
+    activeSocket.terminate()
+    activeSocket = null
+  }
+
   const CHATROOM_ID = await getChatroomId(channel)
 
   const ws = new WebSocket(
     'wss://ws-us2.pusher.com/app/32cbd69e4b950bf97679?protocol=7&client=js&version=7.6.0&flash=false'
   )
+
+  activeSocket = ws
+  lastMessageAt = Date.now()
+
+  const watchdog = setInterval(() => {
+    if (Date.now() - lastMessageAt > DEAD_CONNECTION_MS) {
+      console.error('[Kick chat dead connection detected]')
+      ws.terminate()
+    }
+  }, 30_000)
 
   ws.on('open', () => {
     console.log(`✅ Connected to Kick Chat WS: ${channel}`)
@@ -48,15 +83,43 @@ export async function startKickChat(
   })
 
   ws.on('message', (raw) => {
-    const payload = JSON.parse(raw.toString())
+    lastMessageAt = Date.now()
 
     process.stdout.write(`[RAW WS] ${raw.toString()}\n`)
 
+    let payload: { event?: string; data?: string }
+    try {
+      payload = JSON.parse(raw.toString())
+    } catch {
+      return
+    }
+
     if (payload.event !== 'App\\Events\\ChatMessageEvent') return
+    if (!payload.data) return
 
-    const data = JSON.parse(payload.data)
+    let data: {
+      content: string
+      created_at: string
+      sender: {
+        id: number
+        username: string
+        slug: string
+        identity?: {
+          color?: string
+          badges?: Array<{
+            type: string
+            text: string
+            count?: number
+          }>
+        }
+      }
+    }
 
-    console.log('[CHAT MESSAGE RECEIVED]')
+    try {
+      data = JSON.parse(payload.data)
+    } catch {
+      return
+    }
 
     broadcast({
       type: 'message',
@@ -69,17 +132,27 @@ export async function startKickChat(
         identity: {
           color: data.sender.identity?.color ?? '#ffffff',
           badges:
-            data.sender.identity?.badges?.map(
-              (
-                b: ChatOverlayEvent['sender']['identity']['badges'][number]
-              ) => ({
-                type: b.type,
-                text: b.text,
-                count: b.count
-              })
-            ) ?? []
+            data.sender.identity?.badges?.map((b) => ({
+              type: b.type,
+              text: b.text,
+              count: b.count ?? 1
+            })) ?? []
         }
       }
     })
+  })
+
+  ws.on('close', (code, reason) => {
+    console.error('[Kick chat WS closed]', code, reason.toString())
+    clearInterval(watchdog)
+    activeSocket = null
+    scheduleReconnect(channel, broadcast)
+  })
+
+  ws.on('error', (err) => {
+    console.error('[Kick chat WS error]', err)
+    clearInterval(watchdog)
+    activeSocket = null
+    scheduleReconnect(channel, broadcast)
   })
 }
