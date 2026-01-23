@@ -48,6 +48,7 @@ export async function startKickChat(
   })
 
   ws.on('message', (raw) => {
+    console.log('[CHAT MESSAGE RECEIVED]')
     const payload = JSON.parse(raw.toString())
 
     if (payload.event !== 'App\\Events\\ChatMessageEvent') return
